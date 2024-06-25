@@ -1,0 +1,15 @@
+{
+  "name": "entertainment-web-app-auth-service",
+  "version": "1.0.0",
+  "description": "Auth Service for my entertainment-web-app backend",
+  "main": "server.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "/entertainment-web-app-auth-service/"
+  },
+  "author": "dcubic",
+  "license": "ISC"
+}
