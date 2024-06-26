@@ -1,59 +1,31 @@
 import bcrypt from "bcrypt";
-import axios from "axios";
-import StatusCodes from "../utils/StatusCodes";
+import AuthClient from "../clients/AuthClient";
 
-export default {
-  signup: async (email: string, password: string) => {
+class AuthHandler {
+  constructor(private authClient: AuthClient = new AuthClient()) {}
+
+  async signup(email: string, password: string) {
+    const createdUser = await this.authClient.createUser(
+      email,
+      await this.hashPassword(password)
+    );
+    return createdUser;
+  }
+
+  async login(email: string, password: string) {
+    const user = await this.authClient.verify(
+      email,
+      await this.hashPassword(password)
+    );
+    return user;
+  }
+
+  private async hashPassword(password: string) {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    try {
-      const response = await axios.post(
-        `${process.env.USER_SERVICE_URL}/users`,
-        {
-          email,
-          password: hashedPassword,
-        }
-      );
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        if (error.response && error.response.status === StatusCodes.CONFLICT) {
-          return {
-            status: StatusCodes.CONFLICT,
-            message: "A User with the specified email address already exists",
-          };
-        } else {
-          return {
-            status: StatusCodes.INTERNAL_SERVER_ERROR,
-            message: "An unexpected Error Occured",
-          };
-        }
-      }
+    return hashedPassword;
+  }
+}
 
-      throw error;
-    }
-  },
-  login: async (email: string, password: string) => {
-    try {
-      const response = await axios.post(
-        `${process.env.USER_SERVICE_URL}/users/verify`,
-        {
-          email,
-          password,
-        }
-      );
-
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        return {
-          status: StatusCodes.UNAUTHORIZED,
-          message: "Invalid Email/Password combination",
-        };
-      }
-
-      throw error;
-    }
-  },
-};
+export default AuthHandler;

@@ -1,9 +1,10 @@
 import express, { Request, Response } from "express";
 import { body, validationResult } from "express-validator";
-import authHandler from "../handlers/authHandler";
+import AuthHandler from "../handlers/AuthHandler";
 import StatusCodes from "../utils/StatusCodes";
 
 const router = express.Router();
+const authHandler = new AuthHandler();
 
 router.post(
   "/signup",
