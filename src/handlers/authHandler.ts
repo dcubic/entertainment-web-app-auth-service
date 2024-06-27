@@ -1,30 +1,42 @@
-import bcrypt from "bcrypt";
-import AuthClient from "../clients/AuthClient";
+import { Connection } from 'mongoose'
+import jwt from "jsonwebtoken";
+import UserDatabase from '../database/users/UserDatabase'
+import { hash, verifyHashSource } from "../utils/hash";
+import StatusCodes from '../utils/StatusCodes';
+
+const JWT_SECRET = "PIZZA"; // TODO 
 
 class AuthHandler {
-  constructor(private authClient: AuthClient = new AuthClient()) {}
+  private userDatabase: UserDatabase
+  constructor(userDatabase: UserDatabase) {
+    this.userDatabase = userDatabase;
+  }
 
   async signup(email: string, password: string) {
-    const createdUser = await this.authClient.createUser(
+    const createdUser = await this.userDatabase.createUser(
       email,
-      await this.hashPassword(password)
+      hash(password)
     );
+
     return createdUser;
   }
 
   async login(email: string, password: string) {
-    const user = await this.authClient.verify(
-      email,
-      await this.hashPassword(password)
+    const user = await this.userDatabase.getUserByEmail(email);
+    const didPasswordProduceHash = verifyHashSource(password, user.password)
+    if (!didPasswordProduceHash) {
+      throw {
+        status: StatusCodes.UNAUTHORIZED,
+        message: "Invalid User credentials"
+      }
+    }
+    
+    const token = jwt.sign(
+      { subject: user.id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: "1h" }
     );
-    return user;
-  }
-
-  private async hashPassword(password: string) {
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    return hashedPassword;
+    return token;
   }
 }
 
