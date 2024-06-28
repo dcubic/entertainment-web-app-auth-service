@@ -3,7 +3,6 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 
 class DatabaseConnector {
   private mongoServer: MongoMemoryServer | null = null;
-  private connection: Connection | null = null;
 
   async connect(useMemoryDB: boolean = false) {
     if (useMemoryDB) {
@@ -12,10 +11,10 @@ class DatabaseConnector {
       await mongoose.connect(uri);
     } else {
       const uri = process.env.MONGO_URI || "";
+      console.log("uri: ", uri);
       await mongoose.connect(uri);
     }
 
-    this.connection = mongoose.connection
     return mongoose.connection;
   }
 

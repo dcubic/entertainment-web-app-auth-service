@@ -1,9 +1,20 @@
-import { Request, Response } from "express";
-import { body, validationResult } from "express-validator";
+import { NextFunction, Request, Response } from "express";
 import AuthHandler from "../handlers/AuthHandler";
-import StatusCodes from "../utils/StatusCodes";
+import StatusCode from "../utils/StatusCode";
 import UserDatabase from "../database/users/UserDatabase";
 import BaseRouter from "./BaseRouter";
+
+const asyncWrapper = (
+  operation: (
+    request: Request,
+    response: Response,
+    next: NextFunction
+  ) => Promise<any>
+) => {
+  return (request: Request, response: Response, next: NextFunction) => {
+    Promise.resolve(operation(request, response, next)).catch(next);
+  };
+};
 
 class AuthRouter extends BaseRouter {
   private authHandler: AuthHandler;
@@ -14,58 +25,22 @@ class AuthRouter extends BaseRouter {
   }
 
   initializeRoutes() {
-    this.router.post(
-      "/signup",
-      [
-        body("email").isEmail().withMessage("Invalid email address"),
-        body("password").notEmpty().withMessage("Password cannot be empty"),
-      ],
-      this.signup.bind(this)
-    );
-    this.router.post(
-      "/login",
-      [
-        body("email").isEmail().withMessage("Invalid email address"),
-        body("password").notEmpty().withMessage("Password cannot be empty"),
-      ],
-      this.login.bind(this)
-    );
+    this.router.post("/signup", asyncWrapper(this.signup.bind(this)));
+    this.router.post("/login", asyncWrapper(this.login.bind(this)));
   }
 
-  private signup(request: Request, response: Response) {
-    const errors = validationResult(request);
-    if (!errors.isEmpty()) {
-      return response.status(400).json({ errors: errors.array() });
-    }
-
+  private async signup(request: Request, response: Response) {
     const { email, password } = request.body;
 
-    this.authHandler
-      .signup(email, password)
-      .then((_) => {
-        response.status(StatusCodes.OK).send();
-      })
-      .catch((error) => {
-        response.status(error.status).json({ errors: error.errors });
-      });
+    await this.authHandler.signup(email, password);
+    response.status(StatusCode.OK).send();
   }
 
-  private login(request: Request, response: Response) {
-    const errors = validationResult(request);
-    if (!errors.isEmpty()) {
-      return response.status(400).json({ errors: errors.array() });
-    }
-
+  private async login(request: Request, response: Response) {
     const { email, password } = request.body;
 
-    this.authHandler
-      .login(email, password)
-      .then((_) => {
-        response.status(StatusCodes.OK).send();
-      })
-      .catch((error) => {
-        response.status(error.status).json({ message: error.message });
-      });
+    await this.authHandler.login(email, password);
+    response.status(StatusCode.OK).send();
   }
 }
 

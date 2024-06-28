@@ -1,8 +1,6 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 import uniqueValidator from "mongoose-unique-validator";
 
-mongoose.Error.ValidationError
-
 export interface User extends Document {
   _id: mongoose.Types.ObjectId;
   email: string;

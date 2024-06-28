@@ -1,6 +1,10 @@
 import { getUserModel, User } from "./user";
 import mongoose, { Connection } from "mongoose";
-import StatusCodes from "../../utils/StatusCodes";
+import {
+  AuthorizationError,
+  ConflictingResourceError,
+  InternalServerError,
+} from "../../utils/errors";
 
 class UserDatabase {
   private UserModel: mongoose.Model<User>;
@@ -23,19 +27,9 @@ class UserDatabase {
       };
     } catch (error) {
       if (error instanceof mongoose.Error.ValidationError) {
-        throw {
-          status: StatusCodes.CONFLICT,
-          errors: Object.entries(error.errors).map(([fieldName, error]) => ({
-            fieldName: fieldName,
-            message: error.message,
-            kind: error.kind,
-          })),
-        };
+        throw new ConflictingResourceError("Email address already in use");
       } else {
-        throw {
-          status: StatusCodes.INTERNAL_SERVER_ERROR,
-          message: (error as Error).message,
-        };
+        throw new InternalServerError();
       }
     }
   };
@@ -43,18 +37,20 @@ class UserDatabase {
   async getUserByEmail(email: string) {
     try {
       const user = await this.UserModel.findOne({ email: email });
-      if (user) return { id: user._id.toString(), email: user.email, password: user.password };
-      else {
-        throw {
-          status: StatusCodes.NOT_FOUND,
-          message: `No User with email: \"${email}\" found`,
+      if (user)
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          password: user.password,
         };
+      else {
+        throw new AuthorizationError();
       }
     } catch (error) {
-      throw {
-        status: StatusCodes.INTERNAL_SERVER_ERROR,
-        message: (error as Error).message,
-      };
+      if (error instanceof AuthorizationError) {
+        throw error;
+      }
+      throw new InternalServerError();
     }
   }
 }
