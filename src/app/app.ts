@@ -1,17 +1,16 @@
 import express from "express";
 import bodyParser from "body-parser";
 import AuthRouter from "../routes/AuthRouter";
-import { createDatabaseConnection } from "../database/DatabaseConnector";
 import UserDatabase from "../database/users/UserDatabase";
+import { Connection } from "mongoose";
 
-const databaseConnection = createDatabaseConnection().then((connection) => {
-    const database = new UserDatabase(connection.Connection)
-})
-const database = new UserDatabase(databaseConnection.Connection);
-const authRouter = new AuthRouter()
+export const createApp = async (databaseConnection: Connection) => {
+    const app = express();
+    const database = new UserDatabase(databaseConnection);
+    const authRouter = new AuthRouter(database);
 
-const app = express();
-app.use(bodyParser.json());
-app.use("/", authRouter);
+    app.use(bodyParser.json());
+    app.use("/", authRouter.getRouter());
 
-export default app;
+    return app;
+}

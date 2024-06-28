@@ -46,7 +46,7 @@ class AuthRouter extends BaseRouter {
         response.status(StatusCodes.OK).send();
       })
       .catch((error) => {
-        response.status(error.status).json({ message: error.message });
+        response.status(error.status).json({ errors: error.errors });
       });
   }
 

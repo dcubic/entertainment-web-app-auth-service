@@ -1,4 +1,3 @@
-import { Connection } from 'mongoose'
 import jwt from "jsonwebtoken";
 import UserDatabase from '../database/users/UserDatabase'
 import { hash, verifyHashSource } from "../utils/hash";

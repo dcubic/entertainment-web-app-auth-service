@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 import uniqueValidator from "mongoose-unique-validator";
 
 mongoose.Error.ValidationError
@@ -8,6 +8,8 @@ export interface User extends Document {
   email: string;
   password: string;
 }
+
+type UserModel = Model<User, {}, {}>
 
 const userSchema = new Schema<User>({
   email: {
@@ -25,5 +27,5 @@ const userSchema = new Schema<User>({
 userSchema.plugin(uniqueValidator);
 
 export const getUserModel = (connection: mongoose.Connection) => {
-  return connection.model<User>("User", userSchema);
+  return connection.model<User, UserModel>("User", userSchema);
 };

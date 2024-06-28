@@ -1,22 +1,22 @@
-import mongoose from "mongoose";
+import mongoose, { Connection } from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 
 class DatabaseConnector {
   private mongoServer: MongoMemoryServer | null = null;
+  private connection: Connection | null = null;
 
-  async connect(useMemoryDB: boolean = false): Promise<typeof mongoose> {
+  async connect(useMemoryDB: boolean = false) {
     if (useMemoryDB) {
       this.mongoServer = await MongoMemoryServer.create();
       const uri = this.mongoServer.getUri();
       await mongoose.connect(uri);
     } else {
-      const uri =
-        process.env.MONGO_URI ||
-        "mongodb+srv://dcubic:PVOpLHciOg9OZGVr@freecluster.h1hyyzp.mongodb.net/users?retryWrites=true";
+      const uri = process.env.MONGO_URI || "";
       await mongoose.connect(uri);
     }
 
-    return mongoose;
+    this.connection = mongoose.connection
+    return mongoose.connection;
   }
 
   async disconnect() {
@@ -34,11 +34,4 @@ class DatabaseConnector {
   }
 }
 
-const createDatabaseConnection = async (
-  databaseConnector: DatabaseConnector = new DatabaseConnector(),
-  useMemoryDB: boolean = false
-): Promise<typeof mongoose> => {
-  return await databaseConnector.connect(useMemoryDB);
-};
-
-export { DatabaseConnector, createDatabaseConnection };
+export default DatabaseConnector;

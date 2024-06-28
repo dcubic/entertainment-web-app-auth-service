@@ -43,7 +43,7 @@ class UserDatabase {
   async getUserByEmail(email: string) {
     try {
       const user = await this.UserModel.findOne({ email: email });
-      if (user) return user;
+      if (user) return { id: user._id.toString(), email: user.email, password: user.password };
       else {
         throw {
           status: StatusCodes.NOT_FOUND,
