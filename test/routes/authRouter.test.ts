@@ -1,12 +1,10 @@
 import request from "supertest";
 import { Express } from "express-serve-static-core";
-import dotenv from "dotenv";
 import { createApp } from "../../src/app/app";
 import DatabaseConnector from "../../src/database/DatabaseConnector";
 import UserDatabase from "../../src/database/users/UserDatabase";
 import AuthHandler from "../../src/handlers/AuthHandler";
 import StatusCode from "../../src/utils/StatusCode";
-import path from "path";
 
 let databaseConnector: DatabaseConnector;
 let app: Express;
@@ -14,7 +12,6 @@ let authHandler: AuthHandler;
 let userDatabase: UserDatabase;
 
 beforeAll(async () => {
-  dotenv.config({ path: path.resolve(__dirname, "./.env") });
   databaseConnector = new DatabaseConnector();
   const connection = await databaseConnector.connect(true);
   app = await createApp(connection);

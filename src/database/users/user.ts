@@ -7,7 +7,7 @@ export interface User extends Document {
   password: string;
 }
 
-type UserModel = Model<User, {}, {}>
+export type UserModel = Model<User, {}, {}>
 
 const userSchema = new Schema<User>({
   email: {

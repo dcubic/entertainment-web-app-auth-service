@@ -3,7 +3,7 @@ import UserDatabase from "../database/users/UserDatabase";
 import { hash, verifyHashSource } from "../utils/hash";
 import { AuthorizationError } from "../utils/errors";
 
-const JWT_SECRET = process.env.JWT_SECRET || "";
+const JWT_SECRET = process.env.JWT_SECRET || "DOESNT_REALLY_MATTER";
 
 class AuthHandler {
   private userDatabase: UserDatabase;
@@ -12,7 +12,6 @@ class AuthHandler {
   }
 
   async signup(email: string, password: string) {
-    console.log("original password for signup: ", password, "; hashedPassword: ", hash(password));
     const createdUser = await this.userDatabase.createUser(
       email,
       hash(password)
@@ -25,12 +24,9 @@ class AuthHandler {
     const user = await this.userDatabase.getUserByEmail(email);
     const didPasswordProduceHash = verifyHashSource(password, user.password);
     if (!didPasswordProduceHash) {
-      console.log("Was the hashing the issue?");
-      console.log("password: ", password, "savedPassword: ", user.password);
       throw new AuthorizationError();
     }
 
-    console.log("Secret: ", JWT_SECRET);
     const token = jwt.sign(
       { subject: user.id, email: user.email },
       JWT_SECRET,
