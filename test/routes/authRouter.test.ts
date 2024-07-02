@@ -1,10 +1,12 @@
 import request from "supertest";
+import jwt from 'jsonwebtoken';
 import { Express } from "express-serve-static-core";
 import { createApp } from "../../src/app/app";
 import DatabaseConnector from "../../src/database/DatabaseConnector";
 import UserDatabase from "../../src/database/users/UserDatabase";
 import AuthHandler from "../../src/handlers/AuthHandler";
 import StatusCode from "../../src/utils/StatusCode";
+import { BACKUP_JWT_SECRET } from "../../src/utils/constants";
 
 let databaseConnector: DatabaseConnector;
 let app: Express;
@@ -177,12 +179,40 @@ describe("Login", () => {
   it("success case", async () => {
     const email = "Rick@shaw.ca";
     const password = "KFC";
-    await authHandler.signup(email, password);
+    const createdUser = await authHandler.signup(email, password);
 
     const response = await request(app)
       .post("/login")
       .send({ email, password });
 
     expect(response.status).toBe(StatusCode.OK);
+
+    const token = response.body.token;
+
+    const decodedToken = jwt.verify(token, BACKUP_JWT_SECRET);
+    if (typeof decodedToken === "string") {
+      throw new Error("Unexpected string payload");
+    }
+
+    interface CustomJwtPayload {
+      subject: string;
+      email: string;
+    }
+
+    const customPayload: CustomJwtPayload = {
+      subject: (decodedToken as CustomJwtPayload).subject,
+      email: (decodedToken as CustomJwtPayload).email,
+    };
+
+    console.log("createdUser: ", createdUser);
+
+    expect(customPayload).toEqual({
+      subject: createdUser.id,
+      email: email,
+    });
+    expect(response.body).toEqual({
+      id: createdUser.id,
+      token
+    })
   });
 });

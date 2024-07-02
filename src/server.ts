@@ -4,6 +4,7 @@ import DatabaseConnector from "./database/DatabaseConnector";
 
 const startServer = async () => {
   dotenv.config();
+  console.log(process.env.JWT_SECRET);
 
   const databaseConnector = new DatabaseConnector();
   const connection = await databaseConnector.connect();

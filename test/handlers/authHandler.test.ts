@@ -6,6 +6,7 @@ import {
   AuthorizationError,
   ConflictingResourceError,
 } from "../../src/utils/errors";
+import { BACKUP_JWT_SECRET } from "../../src/utils/constants";
 
 let databaseConnector: DatabaseConnector;
 let authHandler: AuthHandler;
@@ -75,9 +76,10 @@ describe("Login", () => {
     const password = "gandalf123";
     await authHandler.signup(email, password);
     const createdUser = await userDatabase.getUserByEmail(email);
-    const token = await authHandler.login(email, password);
+    const { id, token } = await authHandler.login(email, password);
+    expect(id).toBe(createdUser.id)
 
-    const decodedToken = await jwt.verify(token, "DOESNT_REALLY_MATTER");
+    const decodedToken = jwt.verify(token, BACKUP_JWT_SECRET);
     if (typeof decodedToken === "string") {
       throw new Error("Unexpected string payload");
     }

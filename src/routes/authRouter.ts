@@ -39,8 +39,8 @@ class AuthRouter extends BaseRouter {
   private async login(request: Request, response: Response) {
     const { email, password } = request.body;
 
-    await this.authHandler.login(email, password);
-    response.status(StatusCode.OK).send();
+    const { id, token } = await this.authHandler.login(email, password);
+    response.status(StatusCode.OK).json({ id, token });
   }
 }
 

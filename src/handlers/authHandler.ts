@@ -2,8 +2,7 @@ import jwt from "jsonwebtoken";
 import UserDatabase from "../database/users/UserDatabase";
 import { hash, verifyHashSource } from "../utils/hash";
 import { AuthorizationError } from "../utils/errors";
-
-const JWT_SECRET = process.env.JWT_SECRET || "DOESNT_REALLY_MATTER";
+import { BACKUP_JWT_SECRET } from "../utils/constants";
 
 class AuthHandler {
   private userDatabase: UserDatabase;
@@ -29,10 +28,13 @@ class AuthHandler {
 
     const token = jwt.sign(
       { subject: user.id, email: user.email },
-      JWT_SECRET,
+      process.env.JWT_SECRET || BACKUP_JWT_SECRET,
       { expiresIn: "1h" }
     );
-    return token;
+    return {
+      id: user.id,
+      token
+    }
   }
 }
 
