@@ -204,8 +204,6 @@ describe("Login", () => {
       email: (decodedToken as CustomJwtPayload).email,
     };
 
-    console.log("createdUser: ", createdUser);
-
     expect(customPayload).toEqual({
       subject: createdUser.id,
       email: email,

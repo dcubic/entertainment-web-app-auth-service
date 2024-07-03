@@ -11,7 +11,6 @@ class DatabaseConnector {
       await mongoose.connect(uri);
     } else {
       const uri = process.env.MONGO_URI || "";
-      console.log("uri: ", uri);
       await mongoose.connect(uri);
     }
 
