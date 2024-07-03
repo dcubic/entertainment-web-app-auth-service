@@ -17,7 +17,7 @@ export const createApp = async (databaseConnection: Connection) => {
   app.use(bodyParser.json());
   app.use(validateCredentials);
   app.use(handleValidationErrors);
-  app.use("/", authRouter.getRouter());
+  app.use("/auth", authRouter.getRouter());
   app.use(handleErrors);
 
   return app;

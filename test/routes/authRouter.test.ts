@@ -31,7 +31,7 @@ afterAll(async () => {
 
 describe("Sign Up", () => {
   it("error case - missing request body", async () => {
-    const response = await request(app).post("/signup");
+    const response = await request(app).post("/auth/signup");
 
     expect(response.status).toBe(StatusCode.BAD_REQUEST);
     expect(response.body).toEqual({
@@ -41,7 +41,7 @@ describe("Sign Up", () => {
 
   it("error case - missing email", async () => {
     const response = await request(app)
-      .post("/signup")
+      .post("/auth/signup")
       .send({ password: "asdfdsa" });
 
     expect(response.status).toBe(StatusCode.BAD_REQUEST);
@@ -52,7 +52,7 @@ describe("Sign Up", () => {
 
   it("error case: email is not valid", async () => {
     const response = await request(app)
-      .post("/signup")
+      .post("/auth/signup")
       .send({ email: "yoloswaggins", password: "cookiemonster" });
 
     expect(response.status).toBe(StatusCode.BAD_REQUEST);
@@ -63,7 +63,7 @@ describe("Sign Up", () => {
 
   it("error case - missing password", async () => {
     const response = await request(app)
-      .post("/signup")
+      .post("/auth/signup")
       .send({ email: "yoloswaggins@hotdog.com" });
 
     expect(response.status).toBe(StatusCode.BAD_REQUEST);
@@ -79,7 +79,7 @@ describe("Sign Up", () => {
 
     const newPassword = "asdfdsa";
     const response = await request(app)
-      .post("/signup")
+      .post("/auth/signup")
       .send({ email, password: newPassword });
 
     expect(response.status).toBe(StatusCode.CONFLICT);
@@ -96,7 +96,7 @@ describe("Sign Up", () => {
     const password = "JamiesonB100";
 
     const response = await request(app)
-      .post("/signup")
+      .post("/auth/signup")
       .send({ email, password });
 
     expect(response.status).toBe(StatusCode.OK);
@@ -108,7 +108,7 @@ describe("Sign Up", () => {
 
 describe("Login", () => {
   it("error case - missing request body", async () => {
-    const response = await request(app).post("/login");
+    const response = await request(app).post("/auth/login");
 
     expect(response.status).toBe(StatusCode.BAD_REQUEST);
     expect(response.body).toEqual({
@@ -118,7 +118,7 @@ describe("Login", () => {
 
   it("error case - missing email", async () => {
     const response = await request(app)
-      .post("/login")
+      .post("/auth/login")
       .send({ password: "asdfdsa" });
 
     expect(response.status).toBe(StatusCode.BAD_REQUEST);
@@ -129,7 +129,7 @@ describe("Login", () => {
 
   it("error case: email is not valid", async () => {
     const response = await request(app)
-      .post("/login")
+      .post("/auth/login")
       .send({ email: "yoloswaggins", password: "cookiemonster" });
 
     expect(response.status).toBe(StatusCode.BAD_REQUEST);
@@ -140,7 +140,7 @@ describe("Login", () => {
 
   it("error case - missing password", async () => {
     const response = await request(app)
-      .post("/login")
+      .post("/auth/login")
       .send({ email: "yoloswaggins@hotdog.com" });
 
     expect(response.status).toBe(StatusCode.BAD_REQUEST);
@@ -151,7 +151,7 @@ describe("Login", () => {
 
   it("error case - no such user exists", async () => {
     const response = await request(app)
-      .post("/login")
+      .post("/auth/login")
       .send({ email: "tatertots@pizza.com", password: "eskimos" });
 
     expect(response.status).toBe(StatusCode.UNAUTHORIZED);
@@ -167,7 +167,7 @@ describe("Login", () => {
     await userDatabase.createUser(email, actualPassword);
 
     const response = await request(app)
-      .post("/login")
+      .post("/auth/login")
       .send({ email, password: wrongPassword });
 
     expect(response.status).toBe(StatusCode.UNAUTHORIZED);
@@ -182,7 +182,7 @@ describe("Login", () => {
     const createdUser = await authHandler.signup(email, password);
 
     const response = await request(app)
-      .post("/login")
+      .post("/auth/login")
       .send({ email, password });
 
     expect(response.status).toBe(StatusCode.OK);
