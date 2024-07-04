@@ -3,6 +3,7 @@ import AuthHandler from "../handlers/AuthHandler";
 import StatusCode from "../utils/StatusCode";
 import UserDatabase from "../database/users/UserDatabase";
 import BaseRouter from "./BaseRouter";
+import { handleValidationErrors, validateCredentials } from "../utils/middleware";
 
 const asyncWrapper = (
   operation: (
@@ -25,8 +26,8 @@ class AuthRouter extends BaseRouter {
   }
 
   initializeRoutes() {
-    this.router.post("/signup", asyncWrapper(this.signup.bind(this)));
-    this.router.post("/login", asyncWrapper(this.login.bind(this)));
+    this.router.post("/signup", validateCredentials, handleValidationErrors, asyncWrapper(this.signup.bind(this)));
+    this.router.post("/login", validateCredentials, handleValidationErrors, asyncWrapper(this.login.bind(this)));
   }
 
   private async signup(request: Request, response: Response) {

@@ -8,15 +8,16 @@ import {
   handleValidationErrors,
   validateCredentials,
 } from "../utils/middleware";
+import HealthRouter from "../routes/HealthRouter";
 
 export const createApp = async (databaseConnection: Connection) => {
   const app = express();
   const database = new UserDatabase(databaseConnection);
   const authRouter = new AuthRouter(database);
+  const healthRouter = new HealthRouter();
 
   app.use(bodyParser.json());
-  app.use(validateCredentials);
-  app.use(handleValidationErrors);
+  app.use("/auth", healthRouter.getRouter())
   app.use("/auth", authRouter.getRouter());
   app.use(handleErrors);
 

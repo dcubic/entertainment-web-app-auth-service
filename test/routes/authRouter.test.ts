@@ -1,5 +1,5 @@
 import request from "supertest";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 import { Express } from "express-serve-static-core";
 import { createApp } from "../../src/app/app";
 import DatabaseConnector from "../../src/database/DatabaseConnector";
@@ -210,7 +210,7 @@ describe("Login", () => {
     });
     expect(response.body).toEqual({
       id: createdUser.id,
-      token
-    })
+      token,
+    });
   });
 });
