@@ -15,9 +15,7 @@ beforeAll(async () => {
 
 describe("healthCheck", () => {
   it("success case", async () => {
-    console.log("Before health check")
     const response = await request(app).get("/auth/health");
-    console.log("After health check")
     
     expect(response.status).toBe(StatusCode.OK);
   });
